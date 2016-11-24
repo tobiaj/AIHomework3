@@ -21,7 +21,6 @@ import java.io.IOException;
  * Created by tobiaj on 2016-11-23.
  */
 public class Queen extends Agent {
-
     private int agentNumber;
     public AID nextAgentAID;
     public AID previousAgentAID;
@@ -34,7 +33,7 @@ public class Queen extends Agent {
 
     public void setup(){
 
-        boardSize = 4;
+        boardSize = 5;
         Object [] arguemnts = getArguments();
 
         if (arguemnts.length > 1 ){
@@ -62,12 +61,11 @@ public class Queen extends Agent {
         String service = "Queen" + agentNumber;
         registerService(this, service);
 
-        if (agentNumber < board.length) {
+        if (agentNumber < board.length - 1) {
             createSubscription();
 
         }
-        else{
-            System.out.println("");
+        else {
             waitForMove();
         }
     }
@@ -196,6 +194,8 @@ public class Queen extends Agent {
 
     private void fillBoard(int xPosition, int yPosition) {
 
+        System.out.println("AGENT: " + agentNumber + " enters FILLBOARD WITH " + xPosition + " " + yPosition);
+
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (i == xPosition && board[i][j] > -1)
@@ -257,6 +257,8 @@ public class Queen extends Agent {
 
     private void unFillBoard(int yPosition, int xPosition) {
 
+        System.out.println("AGENT: " + agentNumber + " enters UNFILLBOARD WITH " + xPosition + " " + yPosition);
+
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (i == xPosition && board[i][j] > -1)
@@ -310,7 +312,6 @@ public class Queen extends Agent {
         }
         System.out.println("EFTER Andra diagonal  UNFILL");
 
-        board[agentNumber][prevYPosition] = 0;
         printBoard();
 
         System.out.println("\n");
@@ -355,7 +356,7 @@ public class Queen extends Agent {
                 if (!areWeUnderAttack(prevYPosition)) {
                     placeQueen(prevYPosition);
                     fillBoard(agentNumber, prevYPosition);
-                    if (agentNumber == boardSize){
+                    if (agentNumber == board.length - 1){
                         System.out.println("KLARA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                     }
                     message.setOntology("move"+(agentNumber+1));
@@ -375,20 +376,20 @@ public class Queen extends Agent {
             }
             else if(msg.getOntology().equals("callback")) {
                 unFillBoard(agentNumber, prevYPosition);
+                board[agentNumber][prevYPosition] = 0;
                 if (prevYPosition + 1 > board.length){
                     prevYPosition = 0;
 
-                    message.setOntology("callback");
-                    message.addReceiver(previousAgentAID);
-                    send(message);
-
+                    if (agentNumber != 0) {
+                        message.setOntology("callback");
+                        message.addReceiver(previousAgentAID);
+                        send(message);
+                    }
                 }
 
                 if (!areWeUnderAttack(prevYPosition + 1)) {
-                    System.out.println("PREVIOUS INNAN FILLBOARD IGEN EFTER EN CALLBACK: " + prevYPosition);
                     placeQueen(prevYPosition);
                     fillBoard(agentNumber, prevYPosition);
-                    System.out.println("PREVIOUS EFTER FILLBOARD IGEN EFTER EN CALLBACK: " + prevYPosition);
 
                     message.setOntology("move"+(agentNumber+1));
                     message.addReceiver(nextAgentAID);
