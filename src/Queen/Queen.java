@@ -25,7 +25,7 @@ public class Queen extends Agent {
     public AID nextAgentAID;
     public AID previousAgentAID;
     public int xPosition = 0;
-    public int prevYPosition;
+    public int prevYPosition = 0;
     public int [][] board;
     public int [][] backUpboard;
     public int boardSize;
@@ -33,7 +33,7 @@ public class Queen extends Agent {
 
     public void setup(){
 
-        boardSize = 5;
+        boardSize = 8;
         Object [] arguemnts = getArguments();
 
         if (arguemnts.length > 1 ){
@@ -46,6 +46,7 @@ public class Queen extends Agent {
         }
 
         System.out.println("Queen number: " + agentNumber + " has started");
+
         board = new int[boardSize][boardSize];
 
         if (agentNumber == 0) {
@@ -57,6 +58,9 @@ public class Queen extends Agent {
             });
             printBoard();
         }
+
+        System.out.println("BOARD.LENGTH = " + board.length);
+        System.out.println("BOARD.LENGTH - 1 = " + (board.length - 1));
 
         String service = "Queen" + agentNumber;
         registerService(this, service);
@@ -205,8 +209,8 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("EFTER lodrät vågrätt LOOP");
-        printBoard();
+        /*System.out.println("EFTER lodrät vågrätt LOOP");
+        printBoard();*/
 
         int startX=0, startY=0;
 
@@ -218,15 +222,15 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("Start position för första diagonal: " + startX + " " + startY);
+        //System.out.println("Start position för första diagonal: " + startX + " " + startY);
 
         for (int i = startX, j = startY; i < board.length && j < board.length; i++,j++){
             if (board[i][j] != -1)
                 board[i][j]++;
         }
 
-        System.out.println("EFTER FÖRSTA diagonal");
-        printBoard();
+        /*System.out.println("EFTER FÖRSTA diagonal");
+        printBoard();*/
 
 
         for (int i = xPosition, j = yPosition; j < board.length && i >= 0; i--, j++) {
@@ -238,16 +242,16 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("Start position för andra");
+        /*System.out.println("Start position för andra");
 
-        System.out.println("startX: " + startX + "\n startY: " + startY);
+        System.out.println("startX: " + startX + "\n startY: " + startY);*/
 
         for (int i = startX, j = startY; j >= 0 && i < board.length; i++,j--){
-            System.out.println(i + " and " + j);
+            //System.out.println(i + " and " + j);
             if (board[i][j] != -1)
                 board[i][j]++;
         }
-        System.out.println("EFTER Andra diagonal");
+        //System.out.println("EFTER Andra diagonal");
 
         printBoard();
 
@@ -255,7 +259,7 @@ public class Queen extends Agent {
 
     }
 
-    private void unFillBoard(int yPosition, int xPosition) {
+    private void unFillBoard(int xPosition, int yPosition) {
 
         System.out.println("AGENT: " + agentNumber + " enters UNFILLBOARD WITH " + xPosition + " " + yPosition);
 
@@ -268,8 +272,8 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("EFTER lodrät vågrätt LOOP UNFILL");
-        printBoard();
+    /* System.out.println("EFTER lodrät vågrätt LOOP UNFILL");
+        printBoard();*/
 
         int startX=0, startY=0;
 
@@ -281,15 +285,15 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("Start position för första diagonal:  UNFILL" + startX + " " + startY);
+        // System.out.println("Start position för första diagonal:  UNFILL" + startX + " " + startY);
 
         for (int i = startX, j = startY; i < board.length && j < board.length; i++,j++){
             if (board[i][j] != -1)
                 board[i][j]--;
         }
 
-        System.out.println("EFTER FÖRSTA diagonal  UNFILL");
-        printBoard();
+        /*System.out.println("EFTER FÖRSTA diagonal  UNFILL");
+        printBoard();*/
 
 
         for (int i = xPosition, j = yPosition; j < board.length && i >= 0; i--, j++) {
@@ -301,16 +305,18 @@ public class Queen extends Agent {
             }
         }
 
-        System.out.println("Start position för andra  UNFILL");
+        /*System.out.println("Start position för andra  UNFILL");
 
-        System.out.println("startX: " + startX + "\n startY: " + startY);
+        System.out.println("startX: " + startX + "\n startY: " + startY);*/
 
         for (int i = startX, j = startY; j >= 0 && i < board.length; i++,j--){
-            System.out.println(i + " and " + j);
+            //System.out.println(i + " and " + j);
             if (board[i][j] != -1)
                 board[i][j]--;
         }
-        System.out.println("EFTER Andra diagonal  UNFILL");
+
+
+        //System.out.println("EFTER Andra diagonal  UNFILL");
 
         printBoard();
 
@@ -353,6 +359,8 @@ public class Queen extends Agent {
                     e.printStackTrace();
                 }
 
+                prevYPosition = 0;
+
                 if (!areWeUnderAttack(prevYPosition)) {
                     placeQueen(prevYPosition);
                     fillBoard(agentNumber, prevYPosition);
@@ -375,9 +383,12 @@ public class Queen extends Agent {
 
             }
             else if(msg.getOntology().equals("callback")) {
+                System.out.println("DET ÄR VÄL HIT JAG GÖR UNFILL??????????????");
                 unFillBoard(agentNumber, prevYPosition);
                 board[agentNumber][prevYPosition] = 0;
-                if (prevYPosition + 1 > board.length){
+                ++prevYPosition;
+                if (prevYPosition  == board.length - 1){
+                    System.out.println("Kommer jag in hit och ändrar PREVYPOSITION TILL: " + prevYPosition);
                     prevYPosition = 0;
 
                     if (agentNumber != 0) {
@@ -385,9 +396,11 @@ public class Queen extends Agent {
                         message.addReceiver(previousAgentAID);
                         send(message);
                     }
+
                 }
 
-                if (!areWeUnderAttack(prevYPosition + 1)) {
+                else if (!areWeUnderAttack(prevYPosition)) {
+                    System.out.println("DÅ BORDE DEN HÄR GÖRAS");
                     placeQueen(prevYPosition);
                     fillBoard(agentNumber, prevYPosition);
 
